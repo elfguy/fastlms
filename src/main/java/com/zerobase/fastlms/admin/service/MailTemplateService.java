@@ -32,5 +32,5 @@ public interface MailTemplateService {
     /**
      * 메일 템플릿 삭제
      */
-//    boolean del(String idList);
+    boolean del(String idList);
 }

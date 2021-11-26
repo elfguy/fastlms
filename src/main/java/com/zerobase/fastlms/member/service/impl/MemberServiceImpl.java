@@ -1,8 +1,11 @@
 package com.zerobase.fastlms.member.service.impl;
 
+import com.zerobase.fastlms.admin.dto.MailTemplateDto;
 import com.zerobase.fastlms.admin.dto.MemberDto;
+import com.zerobase.fastlms.admin.entity.MailTemplateKey;
 import com.zerobase.fastlms.admin.mapper.MemberMapper;
 import com.zerobase.fastlms.admin.model.MemberParam;
+import com.zerobase.fastlms.admin.service.MailTemplateService;
 import com.zerobase.fastlms.components.MailComponents;
 import com.zerobase.fastlms.member.entity.Member;
 import com.zerobase.fastlms.member.exception.MemberNotEmailAuthException;
@@ -21,11 +24,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Console;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -33,6 +34,7 @@ public class MemberServiceImpl implements MemberService {
     
     private final MemberRepository memberRepository;
     private final MailComponents mailComponents;
+    private final MailTemplateService mailTemplateService;
     
     private final MemberMapper memberMapper;
     
@@ -64,10 +66,24 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
         
         String email = parameter.getUserId();
-        String subject = "fastlms 사이트 가입을 축하드립니다. ";
-        String text = "<p>fastlms 사이트 가입을 축하드립니다.<p><p>아래 링크를 클릭하셔서 가입을 완료 하세요.</p>"
-                + "<div><a target='_blank' href='http://localhost:8080/member/email-auth?id=" + uuid + "'> 가입 완료 </a></div>";
-        mailComponents.sendMail(email, subject, text);
+//        String subject = "fastlms 사이트 가입을 축하드립니다. ";
+//        String text = "<p>fastlms 사이트 가입을 축하드립니다.<p><p>아래 링크를 클릭하셔서 가입을 완료 하세요.</p>"
+//                + "<div><a target='_blank' href='http://localhost:8080/member/email-auth?id=" + uuid + "'> 가입 완료 </a></div>";
+//        mailComponents.sendMail(email, subject, text);
+
+        MailTemplateDto mailTemplateDto = mailTemplateService.getById(MailTemplateKey.MEMBER_REGISTER);
+
+        //저장된 메일 템플릿이 없더라도 회원가입은 정상적으로 처리하고 로그를 남겨서 후처리 하도록 한다.
+        if (mailTemplateDto != null) {
+            String linkUrl = "http://localhost:8080/member/email-auth?id=" + uuid;
+            Map<String, String> map = new HashMap();
+            map.put("url", linkUrl);
+            mailTemplateDto.setContents(map);
+
+            mailComponents.sendMail(email, mailTemplateDto.getTitle(), mailTemplateDto.getContents());
+        } else {
+            System.out.println("저장된 메일 템플릿이 없습니다.");
+        }
         
         return true;
     }
@@ -111,11 +127,24 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
         
         String email = parameter.getUserId();
-        String subject = "[fastlms] 비밀번호 초기화 메일 입니다. ";
-        String text = "<p>fastlms 비밀번호 초기화 메일 입니다.<p>" +
-                "<p>아래 링크를 클릭하셔서 비밀번호를 초기화 해주세요.</p>"+
-                "<div><a target='_blank' href='http://localhost:8080/member/reset/password?id=" + uuid + "'> 비밀번호 초기화 링크 </a></div>";
-        mailComponents.sendMail(email, subject, text);
+//        String subject = "[fastlms] 비밀번호 초기화 메일 입니다. ";
+//        String text = "<p>fastlms 비밀번호 초기화 메일 입니다.<p>" +
+//                "<p>아래 링크를 클릭하셔서 비밀번호를 초기화 해주세요.</p>"+
+//                "<div><a target='_blank' href='http://localhost:8080/member/reset/password?id=" + uuid + "'> 비밀번호 초기화 링크 </a></div>";
+
+        MailTemplateDto mailTemplateDto = mailTemplateService.getById(MailTemplateKey.RESET_PASSWORD);
+
+        //저장된 메일 템플릿이 없더라도 회원가입은 정상적으로 처리하고 로그를 남겨서 후처리 하도록 한다.
+        if (mailTemplateDto != null) {
+            String linkUrl = "http://localhost:8080/member/reset/password?id=" + uuid;
+            Map<String, String> map = new HashMap();
+            map.put("url", linkUrl);
+            mailTemplateDto.setContents(map);
+
+            mailComponents.sendMail(email, mailTemplateDto.getTitle(), mailTemplateDto.getContents());
+        } else {
+            System.out.println("저장된 메일 템플릿이 없습니다.");
+        }
     
         return false;
     }

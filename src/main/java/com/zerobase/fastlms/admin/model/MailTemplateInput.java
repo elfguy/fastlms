@@ -13,4 +13,6 @@ public class MailTemplateInput {
     String regId;
     String editId;
 
+    //삭제를 위한
+    String idList;
 }

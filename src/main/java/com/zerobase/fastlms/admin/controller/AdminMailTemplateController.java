@@ -1,12 +1,10 @@
 package com.zerobase.fastlms.admin.controller;
 
 import com.zerobase.fastlms.admin.dto.MailTemplateDto;
+import com.zerobase.fastlms.admin.model.MailTemplateInput;
 import com.zerobase.fastlms.admin.model.MailTemplateParam;
 import com.zerobase.fastlms.admin.service.MailTemplateService;
 import com.zerobase.fastlms.course.controller.BaseController;
-import com.zerobase.fastlms.course.dto.CourseDto;
-import com.zerobase.fastlms.course.model.CourseInput;
-import com.zerobase.fastlms.course.model.CourseParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -43,64 +42,63 @@ public class AdminMailTemplateController extends BaseController {
         return "admin/mailtemplate/list";
     }
 
-//    @GetMapping(value = {"/admin/mail/template/add.do", "/admin/mail/template/edit.do"})
-//    public String add(Model model, HttpServletRequest request
-//            , CourseInput parameter) {
-//
-//        //카테고리 정보를 내려줘야 함.
-//        //model.addAttribute("category", categoryService.list());
-//
-//        boolean editMode = request.getRequestURI().contains("/edit.do");
-////        CourseDto detail = new CourseDto();
-////
-////        if (editMode) {
-////            long id = parameter.getId();
-////            CourseDto existCourse = courseService.getById(id);
-////            if (existCourse == null) {
-////                // error 처리
-////                model.addAttribute("message", "강좌정보가 존재하지 않습니다.");
-////                return "common/error";
-////            }
-////            detail = existCourse;
-////        }
-////
-////        model.addAttribute("editMode", editMode);
-////        model.addAttribute("detail", detail);
-//
-//        return "admin/mailtemplate/add";
-//    }
+    @GetMapping(value = {"/admin/mail/template/add.do", "/admin/mail/template/edit.do"})
+    public String add(Model model, HttpServletRequest request
+            , MailTemplateInput parameter) {
 
-//    @PostMapping(value = {"/admin/mail/template/add.do", "/admin/mail/template/edit.do"})
-//    public String addSubmit(Model model, HttpServletRequest request
-//            , CourseInput parameter) {
-//
-//        boolean editMode = request.getRequestURI().contains("/edit.do");
-//
-////        if (editMode) {
-////            long id = parameter.getId();
-////            CourseDto existCourse = courseService.getById(id);
-////            if (existCourse == null) {
-////                // error 처리
-////                model.addAttribute("message", "강좌정보가 존재하지 않습니다.");
-////                return "common/error";
-////            }
-////
-////            boolean result = courseService.set(parameter);
-////
-////        } else {
-////            boolean result = courseService.add(parameter);
-////        }
-//
-//        return "redirect:/admin/mail/template/list.do";
-//    }
+        boolean editMode = request.getRequestURI().contains("/edit.do");
+        MailTemplateDto detail = new MailTemplateDto();
 
-//    @PostMapping("/admin/course/delete.do")
-//    public String del(Model model, HttpServletRequest request
-//            , CourseInput parameter) {
-//
-////        boolean result = courseService.del(parameter.getIdList());
-//
-//        return "redirect:/admin/mail/template/list.do";
-//    }
+        if (editMode) {
+            String mailTemplateId = parameter.getMailTemplateId();
+            MailTemplateDto existMailTemplate = mailTemplateService.getById(mailTemplateId);
+            if (existMailTemplate == null) {
+                // error 처리
+                model.addAttribute("message", "메일템플릿이 존재하지 않습니다.");
+                return "common/error";
+            }
+            detail = existMailTemplate;
+        }
+
+        model.addAttribute("editMode", editMode);
+        model.addAttribute("detail", detail);
+
+        return "admin/mailtemplate/add";
+    }
+
+    @PostMapping(value = {"/admin/mail/template/add.do", "/admin/mail/template/edit.do"})
+    public String addSubmit(Model model, HttpServletRequest request
+            , MailTemplateInput parameter, Principal principal) {
+
+        boolean editMode = request.getRequestURI().contains("/edit.do");
+
+        if (editMode) {
+            String mailTemplateId = parameter.getMailTemplateId();
+            MailTemplateDto existMailTemplate = mailTemplateService.getById(mailTemplateId);
+            if (existMailTemplate == null) {
+                // error 처리
+                model.addAttribute("message", "메일템플릿이 존재하지 않습니다.");
+                return "common/error";
+            }
+
+            parameter.setEditId(principal.getName());
+            boolean result = mailTemplateService.set(parameter);
+
+        } else {
+            parameter.setRegId(principal.getName());
+            boolean result = mailTemplateService.add(parameter);
+        }
+
+        return "redirect:/admin/mail/template/list.do";
+    }
+
+    @PostMapping("/admin/mail/template/delete.do")
+    public String del(Model model, HttpServletRequest request
+            , MailTemplateInput parameter) {
+
+        boolean result = mailTemplateService.del(parameter.getIdList());
+
+        return "redirect:/admin/mail/template/list.do";
+    }
 
 }

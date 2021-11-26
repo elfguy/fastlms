@@ -54,48 +54,43 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script>
-        // $(document).ready(function() {
-        //
-        //     $('#selectAll').on('click', function() {
-        //
-        //         var checked = $(this).is(':checked');
-        //
-        //
-        //         $('#dataLIst input[type=checkbox]').each(function(k, v) {
-        //             $(this).prop('checked', checked);
-        //         });
-        //
-        //
-        //     });
-        //
-        //     $('#deleteButton').on('click', function() {
-        //
-        //         var $checked = $('#dataLIst input[type=checkbox]:checked');
-        //         if ($checked.length < 1) {
-        //             alert(' 삭제할 데이터를 선택해 주세요. ');
-        //             return false;
-        //         }
-        //
-        //         if (!confirm(' 선택한 데이터를 삭제하시겠습니까? ')) {
-        //             return false;
-        //         }
-        //
-        //         var idList = [];
-        //         $.each($checked, function(k, v) {
-        //             idList.push($(this).val());
-        //         });
-        //
-        //         console.log(idList);
-        //         console.log(idList.join(','));
-        //
-        //         var $deleteForm = $('form[name=deleteForm]');
-        //         $deleteForm.find('input[name=idList]').val( idList.join(',') );
-        //         $deleteForm.submit();
-        //
-        //     });
-        //
-        //
-        // });
+        $(document).ready(function() {
+
+            $('#selectAll').on('click', function() {
+                var checked = $(this).is(':checked');
+
+                $('#dataLIst input[type=checkbox]').each(function(k, v) {
+                    $(this).prop('checked', checked);
+                });
+            });
+
+            $('#deleteButton').on('click', function() {
+
+                var $checked = $('#dataLIst input[type=checkbox]:checked');
+                if ($checked.length < 1) {
+                    alert(' 삭제할 데이터를 선택해 주세요. ');
+                    return false;
+                }
+
+                if (!confirm(' 선택한 데이터를 삭제하시겠습니까? ')) {
+                    return false;
+                }
+
+                var idList = [];
+                $.each($checked, function(k, v) {
+                    idList.push($(this).val());
+                });
+
+                console.log(idList);
+                console.log(idList.join(','));
+
+                var $deleteForm = $('form[name=deleteForm]');
+                $deleteForm.find('input[name=idList]').val( idList.join(',') );
+                $deleteForm.submit();
+            });
+
+
+        });
     </script>
 </head>
 <body>
@@ -131,21 +126,21 @@
         </thead>
         <tbody id="dataLIst">
         <tr th:each="x : ${list}">
-            <td>
+            <td style="text-align: center;">
                 <input type="checkbox" th:value="${x.mailTemplateId}"/>
             </td>
-            <td th:text="${x.seq}">1</td>
-            <td>
+            <td th:text="${x.seq}" style="text-align: center;">1</td>
+            <td style="text-align: center;">
                 <p>
-                    <a th:href="'edit.do?id=' + ${x.mailTemplateId}" th:text="${x.mailTemplateId}">템플릿키</a>
+                    <a th:href="'edit.do?mailTemplateId=' + ${x.mailTemplateId}" th:text="${x.mailTemplateId}">템플릿키</a>
                 </p>
             </td>
-            <td>
+            <td style="padding-left: 10px;">
                 <p>
-                    <a th:href="'edit.do?id=' + ${x.mailTemplateId}" th:text="${x.title}">템플릿 제목</a>
+                    <a th:href="'edit.do?mailTemplateId=' + ${x.mailTemplateId}" th:text="${x.title}">템플릿 제목</a>
                 </p>
             </td>
-            <td>
+            <td style="text-align: center;">
                 <p th:text="${x.regDt}">2021.01.01</p>
             </td>
         </tr>
@@ -158,5 +153,10 @@
     </table>
     <div th:if="${#lists.size(list) > 0}" class="pager" th:utext="${pager}"></div>
 </div>
+
+<form name="deleteForm" method="post" action="/admin/mail/template/delete.do">
+    <input type="hidden" name="idList"/>
+</form>
+
 </body>
 </html>

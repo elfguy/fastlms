@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,5 +41,14 @@ public class MailTemplateDto {
                 .editId(mailTemplate.getEditId())
                 .editDt(mailTemplate.getEditDt())
                 .build();
+    }
+
+    /**
+     * 메일에 약속된 내용을 변경해 준다.
+     */
+    public void setContents(Map<String, String> map) {
+        for (Map.Entry<String, String> entry : map.entrySet()){
+            this.contents = this.contents.replace("{" + entry.getKey() + "}", entry.getValue());
+        }
     }
 }

@@ -80,25 +80,17 @@ public class MailTemplateServiceImpl implements MailTemplateService {
         return mailTemplateRepository.findByMailTemplateId(mailTemplateId).map(MailTemplateDto::of).orElse(null);
     }
     
-//    @Override
-//    public boolean del(String idList) {
-//
-//        if (idList != null && idList.length() > 0) {
-//            String[] ids = idList.split(",");
-//            for(String x : ids) {
-//                long id = 0L;
-//                try {
-//                    id = Long.parseLong(x);
-//                } catch (Exception e) {
-//                }
-//
-//                if (id > 0) {
-//                    courseRepository.deleteById(id);
-//                }
-//            }
-//        }
-//
-//        return true;
-//    }
+    @Override
+    public boolean del(String idList) {
+
+        if (idList != null && idList.length() > 0) {
+            String[] ids = idList.split(",");
+            for(String id : ids) {
+                mailTemplateRepository.deleteById(id);
+            }
+        }
+
+        return true;
+    }
     
 }
